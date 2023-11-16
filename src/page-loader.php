@@ -1,12 +1,11 @@
+#!/usr/bin/env php
 <?php
 namespace App;
 use App\Handler;
 
-require 'Handler.php';
-require '../vendor/autoload.php';
+require __DIR__ . '/../vendor/autoload.php';
 
-//make an object to handle the 
-$handler = new Handler($argv);
-echo $handler->echo();
-
-
+//Make an object to handle the command. Pass in the options. Handle options
+$handler = new Handler();
+$handler->setArgs($argv);
+$handler->handleOptions();
