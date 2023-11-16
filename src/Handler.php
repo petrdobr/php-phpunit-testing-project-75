@@ -3,47 +3,68 @@ namespace App;
 use GuzzleHttp\Client;
 class Handler
 {
-    private $args;
+    private array $args;
+    private string $helpMessage = 'help text will come' . PHP_EOL;
+    private string $versionMessage = 'version text will come' . PHP_EOL;
+    private string $fileName;
+    private string $urlToDownload = "";
+    private string $fileDirectory = __DIR__;
+    
     public function setArgs(array $args): void
     {
         $this->args = $args;
     }
 
-    public function handleOptions(): void
+    public function handleOptions()
     {
-        $helpOptions = ['-h', '--help', '--h', '?'];
-        $helpMessage = 'text will come' . PHP_EOL;
-        if (count($this->args) == 1 or in_array($this->args[1], $helpOptions)) {
-            echo $helpMessage;
-        } else {
-            //add check if this is url?
-            $parsedURL = parse_url($this->args[1]);
-            //make new connect, call a function to connect;
-            //make a filename from the parsed url;
-            //check if option -o is passed in
-            //if yes save file to a new directory
-            //if no save file to current directory
-            //(how to get rid of if statements and allow to expand the commands easily?)
+        $optionsBasic = [
+            '-h' => $this->helpMessage,
+            '--help' => $this->helpMessage,
+            '?' => $this->helpMessage,
+            '-v' => $this->versionMessage,
+            '--version' => $this->versionMessage 
+        ];
+        //if an option was entered from the list above then echo message and exit;
+        if (array_key_exists($this->args[1], $optionsBasic)) {
+            echo $optionsBasic[$this->args[1]];
+            return false;
         }
+        //try to parse the URL
+        $parsedURL = parse_url($this->args[1]);
+        //if parse_url couldn't parse the input it will return false and so we can stop here.
+        if (!$parsedURL) {
+            echo "This URL does not seem to be correct, please try again.";
+            return false;
+        }
+        //store the URL to properties
+        $this->urlToDownload = $this->args[1];
+        //construct filename
+        $parsedBody = str_replace('.', '-', $parsedURL["host"]);
+        $parsedPath = str_replace('/', '-', $parsedURL["path"]);
+        $this->fileName = $parsedBody . $parsedPath . '.html';
+
+        //handle directory option
+        $optionsSecondary = ['-o', '--output'];
+        if (isset($this->args[2]) and in_array($this->args[2], $optionsSecondary)) {
+            $this->fileDirectory = __DIR__ . $this->args[3];
+        }
+        return true; //all options are good, can continue
     }
 
-    public function makeRequest($connect, $options)
+    public function downloadPage(Client $connect, $clientClass)
     {
-
+        $dataFromURL = $connect->get($this->urlToDownload)->getBody()->getContents();
+        $filePath = $this->fileDirectory . '/' . $this->fileName;
+        file_put_contents($this->fileName, $dataFromURL);
     }
 
-    public function echo()
+    public function getFileName()
     {
-        /*
-        $client = new Client(['base_uri' => 'http://hexlet.io/']);
-        print_r($this->args);
-        $response = $client->request('GET', '');
-        return $response->getBody();
-        */
+        return $this->fileName;
     }
 
-    public function handler()
+    public function getFileDirectory()
     {
-        //code
+        return $this->fileDirectory;
     }
 }
