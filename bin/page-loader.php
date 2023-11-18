@@ -1,6 +1,6 @@
 #!/usr/bin/env php
 <?php
-namespace App;
+
 use App\Handler;
 use GuzzleHttp\Client;
 
@@ -11,7 +11,8 @@ $handler = new Handler();
 $handler->setArgs($argv);
 if ($handler->handleOptions()) {
     //make new client, download page
-    $connect = new Client();
-    $clientClass = $connect::class;
-    $handler->downloadPage($connect, $clientClass);
+    $client = new Client();
+    $url = $handler->getUrl();
+    $filePath = $handler->getFileDirectory();
+    $handler->downloadPage($url, $filePath, $client);
 }

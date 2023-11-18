@@ -17,6 +17,7 @@
         "phpunit/phpunit": "^10.4"
     },
     "require": {
-        "guzzlehttp/guzzle": "^7.8"
+        "guzzlehttp/guzzle": "^7.8",
+        "mikey179/vfsstream": "^1.6"
     }
 }
