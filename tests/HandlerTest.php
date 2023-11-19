@@ -8,18 +8,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
 use App\Handler;
-use org\bovigo\vfs\{
-    vfsStream,
-    vfsStreamDirectory
-};
+use org\bovigo\vfs\vfsStream;
 
 class HandlerTest extends TestCase
 {
-    private mixed $client;
+    private $client;
     private Handler $handler;
-    private mixed $response;
-    private mixed $streamObject;
-    private string $root;
+    private $response;
+    private $streamObject;
+    private $root;
     private array $args;
     private string $stubData;
 
@@ -29,7 +26,7 @@ class HandlerTest extends TestCase
         $this->response = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
-        $this->root = vfsStream::setup('/home/hex/php-unit-project/');
+        $this->root = vfsStream::setup('home/hex/php-unit-project');
 
         //create stub with fake data and imitate chain of methods to get fake webpage content
         $this->stubData = '<html><head><title>TITLE</title></head><body>SITE</body></html>';
@@ -88,7 +85,7 @@ class HandlerTest extends TestCase
         $url1 = $this->handler->getUrl();
 
         //download page to fake virtual disk
-        $filePath1 = vfsStream::url('/home/hex/php-unit-project/') . $this->handler->getFileName();
+        $filePath1 = vfsStream::url('home/hex/php-unit-project' . '/' . $this->handler->getFileName());
         $this->handler->downloadPage($url1, $filePath1, $this->client);
         
         //check for file created at a passed in directory
@@ -98,9 +95,9 @@ class HandlerTest extends TestCase
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
-        $newFileDirectory = vfsStream::url('/home/hex/php-unit-project/') . 'tmp/';
+        $newFileDirectory = vfsStream::url('home/hex/php-unit-project' . '/tmp');
         mkdir($newFileDirectory);
-        $filePath2 = $newFileDirectory . $this->handler->getFileName();
+        $filePath2 = $newFileDirectory . '/' . $this->handler->getFileName();
         $url2 = $this->handler->getUrl();
 
         $this->handler->downloadPage($url2, $filePath2, $this->client);

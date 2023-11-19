@@ -52,10 +52,14 @@ class Handler
         //handle directory option
         $optionsSecondary = ['-o', '--output'];
         if (isset($this->args[2]) and in_array($this->args[2], $optionsSecondary)) {
+            //if new directory was not passed in with the option then just ignore
             if (isset($this->args[3])) {
-                //if new directory was not passed in with the option then just ignore
-                mkdir(realpath("/home/hex/php-unit-project") . $this->args[3]);
-                $this->fileDirectory = realpath("/home/hex/php-unit-project") . $this->args[3]  . '/' . $this->fileName;
+                $newPath = realpath("/home/hex/php-unit-project") . $this->args[3];
+                //check if it's already exists
+                if (!file_exists($newPath)) {
+                    mkdir(realpath("/home/hex/php-unit-project") . $this->args[3]);
+                }
+                $this->fileDirectory = $newPath  . '/' . $this->fileName;
             }
         }
 
@@ -66,7 +70,7 @@ class Handler
     {
         $dataFromURL = $client->get($url)->getBody()->getContents();
         file_put_contents($filePath, $dataFromURL);
-        echo "Page was successfully downloaded into " . $filePath;
+        echo "Page was successfully downloaded into " . $filePath . PHP_EOL;
     }
 
     public function getFileName(): string
