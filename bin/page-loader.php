@@ -13,6 +13,6 @@ if ($handler->handleOptions()) {
     //make new client, download page
     $client = new Client();
     $url = $handler->getUrl();
-    $filePath = $handler->getFileDirectory();
+    $filePath = $handler->getFilePath();
     $handler->downloadPage($url, $filePath, $client);
 }

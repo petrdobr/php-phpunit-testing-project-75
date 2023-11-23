@@ -64,14 +64,14 @@ class HandlerTest extends TestCase
         $this->handler->setArgs($args2);
         $this->handler->handleOptions();
         $expectedDirectory = '/home/hex/php-unit-project/hexlet-io-page-com.html';
-        $this->assertEquals($expectedDirectory, $this->handler->getFileDirectory());
+        $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
 
         //test passed in directory
         $args3 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args3);
         $this->handler->handleOptions();
         $expectedDirectory = '/home/hex/php-unit-project/tmp/hexlet-io-page-com.html';
-        $this->assertEquals($expectedDirectory, $this->handler->getFileDirectory());
+        $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
     }
 
     public function testDownloadPage(): void
@@ -95,9 +95,9 @@ class HandlerTest extends TestCase
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
-        $newFileDirectory = vfsStream::url('home/hex/php-unit-project' . '/tmp');
-        mkdir($newFileDirectory);
-        $filePath2 = $newFileDirectory . '/' . $this->handler->getFileName();
+        $newfilePath = vfsStream::url('home/hex/php-unit-project' . '/tmp');
+        mkdir($newfilePath);
+        $filePath2 = $newfilePath . '/' . $this->handler->getFileName();
         $url2 = $this->handler->getUrl();
 
         $this->handler->downloadPage($url2, $filePath2, $this->client);

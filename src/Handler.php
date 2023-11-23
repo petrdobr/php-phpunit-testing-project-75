@@ -2,6 +2,7 @@
 namespace App;
 
 use GuzzleHttp\Client;
+use DiDom\Document;
 
 class Handler
 {
@@ -10,7 +11,8 @@ class Handler
     private string $versionMessage = 'Page Loader version 0.2b' . PHP_EOL;
     private string $fileName;
     private string $urlToDownload = "";
-    private string $fileDirectory;
+    private string $filePath; // includes filename
+    private string $directory; // does not include filename
     
     public function setArgs(array $args): void
     {
@@ -47,19 +49,20 @@ class Handler
         $this->fileName = $parsedBody . $parsedPath . '.html';
 
         //set default path
-        $this->fileDirectory = realpath("/home/hex/php-unit-project") . '/' . $this->fileName;
+        $this->directory = realpath("/home/hex/php-unit-project");
+        $this->filePath = $this->directory . '/' . $this->fileName;
 
         //handle directory option
         $optionsSecondary = ['-o', '--output'];
         if (isset($this->args[2]) and in_array($this->args[2], $optionsSecondary)) {
             //if new directory was not passed in with the option then just ignore
             if (isset($this->args[3])) {
-                $newPath = realpath("/home/hex/php-unit-project") . $this->args[3];
+                $this->directory = realpath("/home/hex/php-unit-project") . $this->args[3];
                 //check if it's already exists
-                if (!file_exists($newPath)) {
+                if (!file_exists($this->directory)) {
                     mkdir(realpath("/home/hex/php-unit-project") . $this->args[3]);
                 }
-                $this->fileDirectory = $newPath  . '/' . $this->fileName;
+                $this->filefilePath = $this->directory  . '/' . $this->fileName;
             }
         }
 
@@ -69,6 +72,29 @@ class Handler
     public function downloadPage(string $url, string $filePath, Client $client): void
     {
         $dataFromURL = $client->get($url)->getBody()->getContents();
+
+        //make paths for supplementary contents
+        $fileRelativePath = str_replace('.html', '', $this->fileName) . '/_files';
+        $filesPath = $this->directory . $fileRelativePath;
+
+        //work with contents of the page;
+        $doc = new Document($dataFromURL);
+        $fileNames = [];
+        $pngImages = $doc->find('img[src$=png]');
+        foreach ($pngImages as $element) {
+            $fileName = $element->getAttribute('src');
+            $fileName = explode('/', $fileName);
+            var_dump($fileName[-1]);
+            $fileNames[] = $fileName[-1];
+            $newFilePath = $fileRelativePath . $fileName;
+            $element->setAttribute('src', $newFilePath);
+        }
+        $jpgImages = $doc->find('img[src$=jpg]');
+        //download
+        foreach ($fileNames as $file) {
+            $pathToDownloadFile = str_replace($this->fileName, '', $url) . $file;
+            $client->request('GET', $pathToDownloadFile, ['sink' => $filesPath]);
+        }
         file_put_contents($filePath, $dataFromURL);
         echo "Page was successfully downloaded into " . $filePath . PHP_EOL;
     }
@@ -78,9 +104,9 @@ class Handler
         return $this->fileName;
     }
 
-    public function getFileDirectory(): string
+    public function getFilePath(): string
     {
-        return $this->fileDirectory;
+        return $this->filePath;
     }
 
     public function getUrl(): string
