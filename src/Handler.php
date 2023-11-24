@@ -86,9 +86,10 @@ class Handler
 
         //work with additional files of the page;
         $doc = new Document($dataFromURL);
-        $pngImages = $doc->find('img[src$=png]');
+/*        $pngImages = $doc->find('img[src$=png]');
         $jpgImages = $doc->find('img[src$=jpg]');
-        $images = array_merge($pngImages, $jpgImages);
+        $images = array_merge($pngImages, $jpgImages);*/
+        $images = $doc->find('img');
         foreach ($images as $element) {
             $fileURL = $element->getAttribute('src');
             if (str_contains($fileURL, 'http')) {
