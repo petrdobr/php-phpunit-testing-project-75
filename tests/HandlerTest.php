@@ -18,7 +18,8 @@ class HandlerTest extends TestCase
     private $streamObject;
     private $root;
     private array $args;
-    private string $stubData;
+    private string $stubInitialData;
+    private string $stubChangedData;
 
     public function setUp(): void
     {
@@ -29,10 +30,11 @@ class HandlerTest extends TestCase
         $this->root = vfsStream::setup('home/galiia/hex/php-unit-project');
 
         //create stub with fake data and imitate chain of methods to get fake webpage content
-        $this->stubData = '<html><head><title>TITLE</title></head><body>SITE</body></html>';
+        $this->stubInitialData = file_get_contents(realpath(__DIR__ . '/fixtures/testFile.html'));
+        $this->stubChangedData = file_get_contents(realpath(__DIR__ . '/fixtures/changedFile.html'));
         $this->client->method('get')->willReturn($this->response);
         $this->response->method('getBody')->willReturn($this->streamObject);
-        $this->streamObject->method('getContents')->willReturn($this->stubData);
+        $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
     }
 
     public function testHelpOutput(): void
@@ -84,12 +86,15 @@ class HandlerTest extends TestCase
         //get URL from args
         $url1 = $this->handler->getUrl();
 
-        //download page to fake virtual disk
+        //download page to the fake virtual disk
         $filePath1 = vfsStream::url('home/galiia/hex/php-unit-project' . '/' . $this->handler->getFileName());
         $this->handler->downloadPage($url1, $filePath1, $this->client);
         
         //check for file created at a passed in directory
-        $this->assertStringEqualsFile($filePath1, $this->stubData);
+        $this->assertFileExists($filePath1);
+
+        //check for contents to be correct
+        $this->assertStringEqualsFile($filePath1, $this->stubChangedData);
 
         //new args with a new directory passed in and new options
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
@@ -101,6 +106,23 @@ class HandlerTest extends TestCase
         $url2 = $this->handler->getUrl();
 
         $this->handler->downloadPage($url2, $filePath2, $this->client);
-        $this->assertStringEqualsFile($filePath2, $this->stubData);
+        $this->assertFileExists($filePath2);
+        $this->assertStringEqualsFile($filePath2, $this->stubChangedData);
+
+        //check for images created
+        foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
+            //$this->assertFileExists($file);
+        }
+        
     }
+/*
+    public function testDownloadFiles(): void
+    {
+        //check for right directory name, right filenames
+        //check for paths changes in the html file
+        //how to check download images? 
+        //Guzzle will create files nonetheless i think whether they present or not
+
+    }
+    */
 }

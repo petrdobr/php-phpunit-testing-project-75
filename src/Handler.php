@@ -16,6 +16,7 @@ class Handler
     private string $urlToDownload = ""; // example: http://google.com
     private string $filePath; // includes filename, example: /home/project/google-com.html
     private string $directory; // does not include filename, example: /home/project
+    private array $supplementaryFilesPaths = []; //example: /home/project/google-com_files/path-image.jpg
     
     public function setArgs(array $args): void
     {
@@ -103,6 +104,8 @@ class Handler
             $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: google-com_files/path-image.jpg
             $element->setAttribute('src', $newFileRelativePath);
 
+            $this->supplementaryFilesPaths[] = $newFilePath; // for tests
+
             try {
                 $client->request('GET', $pathToDownloadFile, ['sink' => $newFilePath]);
             } catch (\Exception $e) {
@@ -127,5 +130,10 @@ class Handler
     public function getUrl(): string
     {
         return $this->urlToDownload;
+    }
+
+    public function getSupplementaryFilesPaths(): array
+    {
+        return $this->supplementaryFilesPaths;
     }
 }
