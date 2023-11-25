@@ -7,15 +7,15 @@ use DiDom\Document;
 class Handler
 {
     private array $configs = [
-        'defaultPath' => '/home/galiia/hex/php-unit-project',
+        'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file
         'helpMessage' => 'help text will come' . PHP_EOL,
         'versionMessage' => 'Page Loader version 0.2b' . PHP_EOL
     ];
     private array $args;
-    private string $fileName;
-    private string $urlToDownload = "";
-    private string $filePath; // includes filename
-    private string $directory; // does not include filename
+    private string $fileName; // example: google-com.html
+    private string $urlToDownload = ""; // example: http://google.com
+    private string $filePath; // includes filename, example: /home/project/google-com.html
+    private string $directory; // does not include filename, example: /home/project
     
     public function setArgs(array $args): void
     {
@@ -65,7 +65,7 @@ class Handler
                 if (!file_exists($this->directory)) {
                     mkdir($this->configs['defaultPath'] . $this->args[3]);
                 }
-                $this->filefilePath = $this->directory  . '/' . $this->fileName;
+                $this->filePath = $this->directory  . '/' . $this->fileName;
             }
         }
 
@@ -77,8 +77,8 @@ class Handler
         $dataFromURL = $client->get($url)->getBody()->getContents();
 
         //make paths for supplementary contents
-        $fileRelativePath = str_replace('.html', '', $this->fileName) . '_files';
-        $filesPath = $this->directory . '/' . $fileRelativePath;
+        $fileRelativePath = str_replace('.html', '', $this->fileName) . '_files'; // example: google-com_files
+        $filesPath = $this->directory . '/' . $fileRelativePath; //example: /home/project/google-com_files
         if (!file_exists($filesPath)) {
             mkdir($filesPath);
             chmod($filesPath, 0777);
@@ -91,16 +91,16 @@ class Handler
         $images = array_merge($pngImages, $jpgImages);*/
         $images = $doc->find('img');
         foreach ($images as $element) {
-            $fileURL = $element->getAttribute('src');
-            if (str_contains($fileURL, 'http')) {
+            $fileURL = $element->getAttribute('src'); // example: path/image.jpg
+            if (str_contains($fileURL, 'http')) { 
                 $parsedFileURL = parse_url($fileURL);
-                $pathToDownloadFile = $fileURL;
+                $pathToDownloadFile = $fileURL; // example: http://google.com/path/image.jpg
                 $fileURL = str_replace($parsedFileURL['scheme'] . '://' . $parsedFileURL['host'], '', $fileURL);
             } else {
-                $pathToDownloadFile = $url . $fileURL;
+                $pathToDownloadFile = $url . $fileURL; // example: http://google.com/path/image.jpg
             }
-            $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileURL, '/'));
-            $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //to add into the document (see TODO)
+            $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: /home/project/google-com_files/path-image.jpg
+            $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: google-com_files/path-image.jpg
             $element->setAttribute('src', $newFileRelativePath);
 
             try {

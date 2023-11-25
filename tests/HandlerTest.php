@@ -26,7 +26,7 @@ class HandlerTest extends TestCase
         $this->response = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
-        $this->root = vfsStream::setup('home/hex/php-unit-project');
+        $this->root = vfsStream::setup('home/galiia/hex/php-unit-project');
 
         //create stub with fake data and imitate chain of methods to get fake webpage content
         $this->stubData = '<html><head><title>TITLE</title></head><body>SITE</body></html>';
@@ -63,14 +63,14 @@ class HandlerTest extends TestCase
         $args2 = ['page-loader.php', 'http://hexlet.io/page/com'];
         $this->handler->setArgs($args2);
         $this->handler->handleOptions();
-        $expectedDirectory = '/home/hex/php-unit-project/hexlet-io-page-com.html';
+        $expectedDirectory = '/home/galiia/hex/php-unit-project/hexlet-io-page-com.html';
         $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
 
         //test passed in directory
         $args3 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args3);
         $this->handler->handleOptions();
-        $expectedDirectory = '/home/hex/php-unit-project/tmp/hexlet-io-page-com.html';
+        $expectedDirectory = '/home/galiia/hex/php-unit-project/tmp/hexlet-io-page-com.html';
         $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
     }
 
@@ -85,7 +85,7 @@ class HandlerTest extends TestCase
         $url1 = $this->handler->getUrl();
 
         //download page to fake virtual disk
-        $filePath1 = vfsStream::url('home/hex/php-unit-project' . '/' . $this->handler->getFileName());
+        $filePath1 = vfsStream::url('home/galiia/hex/php-unit-project' . '/' . $this->handler->getFileName());
         $this->handler->downloadPage($url1, $filePath1, $this->client);
         
         //check for file created at a passed in directory
@@ -95,7 +95,7 @@ class HandlerTest extends TestCase
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
-        $newfilePath = vfsStream::url('home/hex/php-unit-project' . '/tmp');
+        $newfilePath = vfsStream::url('home/galiia/hex/php-unit-project' . '/tmp');
         mkdir($newfilePath);
         $filePath2 = $newfilePath . '/' . $this->handler->getFileName();
         $url2 = $this->handler->getUrl();
