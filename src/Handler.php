@@ -106,15 +106,21 @@ class Handler
 
             $this->supplementaryFilesPaths[] = $newFilePath; // for tests
 
-            try {
-                $client->request('GET', $pathToDownloadFile, ['sink' => $newFilePath]);
-            } catch (\Exception $e) {
-                echo $e->getMessage() . PHP_EOL;
-            }
+            $this->downloadImages($client, $pathToDownloadFile, $newFilePath);
+
         } 
         $changedDataFromURL = $doc->html();
         file_put_contents($filePath, $changedDataFromURL); 
         echo "Page was successfully downloaded into " . $filePath . PHP_EOL;   
+    }
+
+    public function downloadImages(Client $client, $pathToDownloadFile, $FilePath)
+    {
+        try {
+            $client->request('GET', $pathToDownloadFile, ['sink' => $FilePath]);
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+        }
     }
 
     public function getFileName(): string

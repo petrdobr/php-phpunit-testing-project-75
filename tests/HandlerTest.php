@@ -35,6 +35,8 @@ class HandlerTest extends TestCase
         $this->client->method('get')->willReturn($this->response);
         $this->response->method('getBody')->willReturn($this->streamObject);
         $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
+
+        $this->client->method('request')->willReturn($this->response);
     }
 
     public function testHelpOutput(): void
@@ -111,7 +113,8 @@ class HandlerTest extends TestCase
 
         //check for images created
         foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
-            //$this->assertFileExists($file);
+            echo $file . PHP_EOL;
+            $this->assertFileExists($file);
         }
         
     }
