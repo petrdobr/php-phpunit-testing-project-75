@@ -5,6 +5,7 @@ namespace App\Tests;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
 use App\Handler;
@@ -14,7 +15,7 @@ class HandlerTest extends TestCase
 {
     private $client;
     private Handler $handler;
-    private $response;
+    private $mockResponse;
     private $streamObject;
     private $root;
     private array $args;
@@ -24,7 +25,7 @@ class HandlerTest extends TestCase
     public function setUp(): void
     {
         $this->client = $this->createMock(Client::class);
-        $this->response = $this->createMock(ResponseInterface::class);
+        $this->mockResponse = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
         $this->root = vfsStream::setup('home/galiia/hex/php-unit-project');
@@ -32,11 +33,11 @@ class HandlerTest extends TestCase
         //create stub with fake data and imitate chain of methods to get fake webpage content
         $this->stubInitialData = file_get_contents(realpath(__DIR__ . '/fixtures/testFile.html'));
         $this->stubChangedData = file_get_contents(realpath(__DIR__ . '/fixtures/changedFile.html'));
-        $this->client->method('get')->willReturn($this->response);
-        $this->response->method('getBody')->willReturn($this->streamObject);
+        $this->client->method('get')->willReturn($this->mockResponse);
+        $this->mockResponse->method('getBody')->willReturn($this->streamObject);
         $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
 
-        $this->client->method('request')->willReturn($this->response);
+        $this->client->method('request')->willReturn($this->mockResponse);
     }
 
     public function testHelpOutput(): void
@@ -98,6 +99,15 @@ class HandlerTest extends TestCase
         //check for contents to be correct
         $this->assertStringEqualsFile($filePath1, $this->stubChangedData);
 
+        //check for images to be downloaded
+        $imageStubURL = 'http://hexlet.io/images/logos/logo.png'; // doesn't matter what url is here
+
+        foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
+            echo $file . PHP_EOL; // check names
+            $this->handler->downloadImages($this->client, $imageStubURL, $file);
+            $this->assertFileExists($file);
+        }
+
         //new args with a new directory passed in and new options
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
@@ -110,22 +120,11 @@ class HandlerTest extends TestCase
         $this->handler->downloadPage($url2, $filePath2, $this->client);
         $this->assertFileExists($filePath2);
         $this->assertStringEqualsFile($filePath2, $this->stubChangedData);
-
-        //check for images created
-        foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
-            echo $file . PHP_EOL;
-            $this->assertFileExists($file);
-        }
         
     }
-/*
-    public function testDownloadFiles(): void
-    {
-        //check for right directory name, right filenames
-        //check for paths changes in the html file
-        //how to check download images? 
-        //Guzzle will create files nonetheless i think whether they present or not
 
+    public function tearDown(): void
+    {
+        unset($this->root);
     }
-    */
 }

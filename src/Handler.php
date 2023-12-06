@@ -102,7 +102,7 @@ class Handler
             }
             $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: /home/project/google-com_files/path-image.jpg
             $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: google-com_files/path-image.jpg
-            $element->setAttribute('src', $newFileRelativePath);
+            $element->setAttribute('src', $newFileRelativePath); // change img src value in the HTML doc
 
             $this->supplementaryFilesPaths[] = $newFilePath; // for tests
 
@@ -114,10 +114,12 @@ class Handler
         echo "Page was successfully downloaded into " . $filePath . PHP_EOL;   
     }
 
-    public function downloadImages(Client $client, $pathToDownloadFile, $FilePath)
+    public function downloadImages(Client $client, $url, $filePath)
     {
         try {
-            $client->request('GET', $pathToDownloadFile, ['sink' => $FilePath]);
+            $response = $client->request('GET', $url);
+            file_put_contents($filePath, $response);
+
         } catch (\Exception $e) {
             echo $e->getMessage() . PHP_EOL;
         }
