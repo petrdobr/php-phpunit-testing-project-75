@@ -6,7 +6,7 @@ use DiDom\Document;
 
 class Handler
 {
-    private array $configs = [
+    public array $configs = [
         'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file
         'helpMessage' => 'help text will come' . PHP_EOL,
         'versionMessage' => 'Page Loader version 0.2b' . PHP_EOL
@@ -73,16 +73,18 @@ class Handler
         return true; //all options are good, can continue
     }
 
-    public function downloadPage(string $url, string $filePath, Client $client): void
+    public function downloadPage(string $url, string $directory, Client $client): void
     {
         $dataFromURL = $client->get($url)->getBody()->getContents();
 
         //make paths for supplementary contents
+        //now it creates the directory even if no additional files are to be saved 
+        //TODO: fix
         $fileRelativePath = str_replace('.html', '', $this->fileName) . '_files'; // example: google-com_files
-        $filesPath = $this->directory . '/' . $fileRelativePath; //example: /home/project/google-com_files
+        $filesPath = $directory . '/' . $fileRelativePath; //example: /home/project/google-com_files
         if (!file_exists($filesPath)) {
+            echo "SUCCESS!!!" . PHP_EOL;
             mkdir($filesPath);
-            chmod($filesPath, 0777);
         }
 
         //work with additional files of the page;
@@ -95,10 +97,10 @@ class Handler
             $fileURL = $element->getAttribute('src'); // example: path/image.jpg
             if (str_contains($fileURL, 'http')) { 
                 $parsedFileURL = parse_url($fileURL);
-                $pathToDownloadFile = $fileURL; // example: http://google.com/path/image.jpg
+                $urlToDownloadFile = $fileURL; // example: http://google.com/path/image.jpg
                 $fileURL = str_replace($parsedFileURL['scheme'] . '://' . $parsedFileURL['host'], '', $fileURL);
             } else {
-                $pathToDownloadFile = $url . $fileURL; // example: http://google.com/path/image.jpg
+                $urlToDownloadFile = $url . $fileURL; // example: http://google.com/path/image.jpg
             }
             $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: /home/project/google-com_files/path-image.jpg
             $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: google-com_files/path-image.jpg
@@ -106,20 +108,20 @@ class Handler
 
             $this->supplementaryFilesPaths[] = $newFilePath; // for tests
 
-            $this->downloadImages($client, $pathToDownloadFile, $newFilePath);
+            $this->downloadImages($urlToDownloadFile, $newFilePath, $client);
 
         } 
         $changedDataFromURL = $doc->html();
+        $filePath = $directory . '/' . $this->fileName;
         file_put_contents($filePath, $changedDataFromURL); 
         echo "Page was successfully downloaded into " . $filePath . PHP_EOL;   
     }
 
-    public function downloadImages(Client $client, $url, $filePath)
+    public function downloadImages($url, $filePath, Client $client)
     {
         try {
             $response = $client->request('GET', $url);
             file_put_contents($filePath, $response);
-
         } catch (\Exception $e) {
             echo $e->getMessage() . PHP_EOL;
         }

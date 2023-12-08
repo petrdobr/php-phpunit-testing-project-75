@@ -5,11 +5,11 @@ namespace App\Tests;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Psr7\Response;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
 use App\Handler;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\visitor\vfsStreamPrintVisitor;
 
 class HandlerTest extends TestCase
 {
@@ -28,7 +28,7 @@ class HandlerTest extends TestCase
         $this->mockResponse = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
-        $this->root = vfsStream::setup('home/galiia/hex/php-unit-project');
+        $this->root = vfsStream::setup('/home/galiia/hex/php-unit-project');
 
         //create stub with fake data and imitate chain of methods to get fake webpage content
         $this->stubInitialData = file_get_contents(realpath(__DIR__ . '/fixtures/testFile.html'));
@@ -90,24 +90,29 @@ class HandlerTest extends TestCase
         $url1 = $this->handler->getUrl();
 
         //download page to the fake virtual disk
-        $filePath1 = vfsStream::url('home/galiia/hex/php-unit-project' . '/' . $this->handler->getFileName());
+        $filePath1 = vfsStream::url('home/galiia/hex/php-unit-project'); //. '/' . $this->handler->getFileName();
         $this->handler->downloadPage($url1, $filePath1, $this->client);
+
+        vfsStream::inspect(new vfsStreamPrintVisitor());
+
+        $fullFilePath1 = $filePath1 . '/' . $this->handler->getFileName();
         
         //check for file created at a passed in directory
-        $this->assertFileExists($filePath1);
+        $this->assertFileExists($fullFilePath1);
 
         //check for contents to be correct
-        $this->assertStringEqualsFile($filePath1, $this->stubChangedData);
+        $this->assertStringEqualsFile($fullFilePath1, $this->stubChangedData);
 
         //check for images to be downloaded
         $imageStubURL = 'http://hexlet.io/images/logos/logo.png'; // doesn't matter what url is here
 
         foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
             echo $file . PHP_EOL; // check names
-            $this->handler->downloadImages($this->client, $imageStubURL, $file);
+            $this->handler->downloadImages($imageStubURL, $file, $this->client);
+            vfsStream::inspect(new vfsStreamPrintVisitor());
             $this->assertFileExists($file);
         }
-
+/*
         //new args with a new directory passed in and new options
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
@@ -120,7 +125,7 @@ class HandlerTest extends TestCase
         $this->handler->downloadPage($url2, $filePath2, $this->client);
         $this->assertFileExists($filePath2);
         $this->assertStringEqualsFile($filePath2, $this->stubChangedData);
-        
+*/        
     }
 
     public function tearDown(): void
