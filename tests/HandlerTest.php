@@ -90,12 +90,10 @@ class HandlerTest extends TestCase
         $url1 = $this->handler->getUrl();
 
         //download page to the fake virtual disk
-        $filePath1 = vfsStream::url('home/galiia/hex/php-unit-project'); //. '/' . $this->handler->getFileName();
-        $this->handler->downloadPage($url1, $filePath1, $this->client);
+        $directory1 = vfsStream::url('home/galiia/hex/php-unit-project'); 
+        $this->handler->downloadPage($url1, $directory1, $this->client);
 
-        vfsStream::inspect(new vfsStreamPrintVisitor());
-
-        $fullFilePath1 = $filePath1 . '/' . $this->handler->getFileName();
+        $fullFilePath1 = $directory1 . '/' . $this->handler->getFileName();
         
         //check for file created at a passed in directory
         $this->assertFileExists($fullFilePath1);
@@ -107,25 +105,25 @@ class HandlerTest extends TestCase
         $imageStubURL = 'http://hexlet.io/images/logos/logo.png'; // doesn't matter what url is here
 
         foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
-            echo $file . PHP_EOL; // check names
             $this->handler->downloadImages($imageStubURL, $file, $this->client);
-            vfsStream::inspect(new vfsStreamPrintVisitor());
             $this->assertFileExists($file);
         }
-/*
+
         //new args with a new directory passed in and new options
         $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
-        $newfilePath = vfsStream::url('home/galiia/hex/php-unit-project' . '/tmp');
-        mkdir($newfilePath);
-        $filePath2 = $newfilePath . '/' . $this->handler->getFileName();
+        $directory2 = vfsStream::url('home/galiia/hex/php-unit-project' . '/tmp');
+        mkdir($directory2);
         $url2 = $this->handler->getUrl();
 
-        $this->handler->downloadPage($url2, $filePath2, $this->client);
-        $this->assertFileExists($filePath2);
-        $this->assertStringEqualsFile($filePath2, $this->stubChangedData);
-*/        
+        $this->handler->downloadPage($url2, $directory2, $this->client);
+        $fullFilePath2 = $directory2 . '/' . $this->handler->getFileName();
+        $this->assertFileExists($fullFilePath2);
+        $this->assertStringEqualsFile($fullFilePath2, $this->stubChangedData);
+
+        vfsStream::inspect(new vfsStreamPrintVisitor());
+        
     }
 
     public function tearDown(): void

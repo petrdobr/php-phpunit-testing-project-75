@@ -7,7 +7,7 @@ use DiDom\Document;
 class Handler
 {
     public array $configs = [
-        'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file
+        'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file in
         'helpMessage' => 'help text will come' . PHP_EOL,
         'versionMessage' => 'Page Loader version 0.2b' . PHP_EOL
     ];
@@ -52,7 +52,7 @@ class Handler
         $parsedPath = isset($parsedURL["path"]) ? str_replace('/', '-', $parsedURL["path"]) : ""; //TODO: add trim for '/' 
         $this->fileName = $parsedBody . $parsedPath . '.html';
 
-        //set default path
+        //set directory and full filepath
         $this->directory = $this->configs['defaultPath'];
         $this->filePath = $this->directory . '/' . $this->fileName;
 
@@ -69,7 +69,7 @@ class Handler
                 $this->filePath = $this->directory  . '/' . $this->fileName;
             }
         }
-
+        //TODO add another if-statement for if args2 isset and not in sec options array, display error msg
         return true; //all options are good, can continue
     }
 
@@ -78,32 +78,28 @@ class Handler
         $dataFromURL = $client->get($url)->getBody()->getContents();
 
         //make paths for supplementary contents
-        //now it creates the directory even if no additional files are to be saved 
-        //TODO: fix
         $fileRelativePath = str_replace('.html', '', $this->fileName) . '_files'; // example: google-com_files
         $filesPath = $directory . '/' . $fileRelativePath; //example: /home/project/google-com_files
-        if (!file_exists($filesPath)) {
-            echo "SUCCESS!!!" . PHP_EOL;
-            mkdir($filesPath);
-        }
 
-        //work with additional files of the page;
+        //work with additional files;
         $doc = new Document($dataFromURL);
-/*        $pngImages = $doc->find('img[src$=png]');
-        $jpgImages = $doc->find('img[src$=jpg]');
-        $images = array_merge($pngImages, $jpgImages);*/
         $images = $doc->find('img');
-        foreach ($images as $element) {
-            $fileURL = $element->getAttribute('src'); // example: path/image.jpg
-            if (str_contains($fileURL, 'http')) { 
-                $parsedFileURL = parse_url($fileURL);
-                $urlToDownloadFile = $fileURL; // example: http://google.com/path/image.jpg
-                $fileURL = str_replace($parsedFileURL['scheme'] . '://' . $parsedFileURL['host'], '', $fileURL);
-            } else {
-                $urlToDownloadFile = $url . $fileURL; // example: http://google.com/path/image.jpg
+        if ($images != []) {
+            if (!file_exists($filesPath)) {
+                mkdir($filesPath);
             }
-            $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: /home/project/google-com_files/path-image.jpg
-            $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileURL, '/')); //example: google-com_files/path-image.jpg
+        }
+        foreach ($images as $element) {
+            $fileRelativeURL = $element->getAttribute('src'); // example: path/image.jpg
+            if (str_contains($fileRelativeURL, 'http')) { 
+                $parsedFileURL = parse_url($fileRelativeURL);
+                $urlToDownloadFile = $fileRelativeURL; // example: http://google.com/path/image.jpg
+                $fileRelativeURL = str_replace($parsedFileURL['scheme'] . '://' . $parsedFileURL['host'], '', $fileRelativeURL);
+            } else {
+                $urlToDownloadFile = $url . $fileRelativeURL; // example: http://google.com/path/image.jpg
+            }
+            $newFilePath = $filesPath . '/' . str_replace('/', '-', trim($fileRelativeURL, '/')); // example: /home/project/google-com_files/path-image.jpg
+            $newFileRelativePath = $fileRelativePath . '/' . str_replace('/', '-', trim($fileRelativeURL, '/')); // example: google-com_files/path-image.jpg
             $element->setAttribute('src', $newFileRelativePath); // change img src value in the HTML doc
 
             $this->supplementaryFilesPaths[] = $newFilePath; // for tests
@@ -135,6 +131,11 @@ class Handler
     public function getFilePath(): string
     {
         return $this->filePath;
+    }
+
+    public function getDirectory(): string
+    {
+        return $this->directory;
     }
 
     public function getUrl(): string
