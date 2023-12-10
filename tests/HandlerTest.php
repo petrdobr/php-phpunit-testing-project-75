@@ -24,19 +24,21 @@ class HandlerTest extends TestCase
 
     public function setUp(): void
     {
+        //instantiate necessary objects
         $this->client = $this->createMock(Client::class);
         $this->mockResponse = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
         $this->root = vfsStream::setup('/home/galiia/hex/php-unit-project');
 
-        //create stub with fake data and imitate chain of methods to get fake webpage content
+        //create stubs with fake data
         $this->stubInitialData = file_get_contents(realpath(__DIR__ . '/fixtures/testFile.html'));
         $this->stubChangedData = file_get_contents(realpath(__DIR__ . '/fixtures/changedFile.html'));
+
+        //imitate methods to get fake webpage content
         $this->client->method('get')->willReturn($this->mockResponse);
         $this->mockResponse->method('getBody')->willReturn($this->streamObject);
         $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
-
         $this->client->method('request')->willReturn($this->mockResponse);
     }
 
@@ -58,9 +60,9 @@ class HandlerTest extends TestCase
         $this->handler->handleOptions();
         $this->assertEquals($expectedFileName, $this->handler->getFileName());
 
-        $args4 = ['page-loader.php', 'http://hexlet.io'];
+        $args4 = ['page-loader.php', 'http://ru.hexlet.io'];
         $this->handler->setArgs($args4);
-        $expectedFileName = 'hexlet-io.html';
+        $expectedFileName = 'ru-hexlet-io.html';
         $this->handler->handleOptions();
         $this->assertEquals($expectedFileName, $this->handler->getFileName());
 
@@ -81,8 +83,8 @@ class HandlerTest extends TestCase
 
     public function testDownloadPage(): void
     {
-        //pass in parameters with default path
-        $args4 = ['page-loader.php', 'http://hexlet.io/page/com'];
+        //pass in parameters (default path)
+        $args4 = ['page-loader.php', 'http://ru.hexlet.io/courses'];
         $this->handler->setArgs($args4);
         $this->handler->handleOptions();
 
@@ -101,16 +103,18 @@ class HandlerTest extends TestCase
         //check for contents to be correct
         $this->assertStringEqualsFile($fullFilePath1, $this->stubChangedData);
 
-        //check for images to be downloaded
-        $imageStubURL = 'http://hexlet.io/images/logos/logo.png'; // doesn't matter what url is here
+        //check that images were downloaded
+        foreach ($this->handler->getImagesPaths() as $file) {
+            $this->assertFileExists($file);
+        }
 
-        foreach ($this->handler->getSupplementaryFilesPaths() as $file) {
-            $this->handler->downloadImages($imageStubURL, $file, $this->client);
+        //check that files (css, js) were downloaded
+        foreach ($this->handler->getFilesPaths() as $file) {
             $this->assertFileExists($file);
         }
 
         //new args with a new directory passed in and new options
-        $args5 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
+        $args5 = ['page-loader.php', 'http://ru.hexlet.io/courses', '-o', '/tmp'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
         $directory2 = vfsStream::url('home/galiia/hex/php-unit-project' . '/tmp');
@@ -122,9 +126,23 @@ class HandlerTest extends TestCase
         $this->assertFileExists($fullFilePath2);
         $this->assertStringEqualsFile($fullFilePath2, $this->stubChangedData);
 
+        foreach ($this->handler->getImagesPaths() as $file) {
+            $this->assertFileExists($file);
+        }
+
+        foreach ($this->handler->getFilesPaths() as $file) {
+            $this->assertFileExists($file);
+        }
+
+        //visualize fake virtual directory with all downloaded files
         vfsStream::inspect(new vfsStreamPrintVisitor());
         
     }
+
+/*    public function testDownloadPageNoImages(): void
+    {
+        //add tests with fixture with no <img> tags
+    }*/
 
     public function tearDown(): void
     {
