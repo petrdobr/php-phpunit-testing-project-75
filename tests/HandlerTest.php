@@ -133,7 +133,6 @@ class HandlerTest extends TestCase
         foreach ($this->handler->getFilesPaths() as $file) {
             $this->assertFileExists($file);
         }
-
         //visualize fake virtual directory with all downloaded files
         vfsStream::inspect(new vfsStreamPrintVisitor());
         

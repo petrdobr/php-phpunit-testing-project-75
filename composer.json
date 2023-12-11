@@ -19,6 +19,7 @@
     "require": {
         "guzzlehttp/guzzle": "^7.8",
         "mikey179/vfsstream": "^1.6",
-        "imangazaliev/didom": "^2.0"
+        "imangazaliev/didom": "^2.0",
+        "monolog/monolog": "^3.5"
     }
 }

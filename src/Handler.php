@@ -3,14 +3,19 @@ namespace App;
 
 use GuzzleHttp\Client;
 use DiDom\Document;
+use Monolog\Level;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+use Monolog\Processor\PsrLogMessageProcessor;
 
 class Handler
 {
-    public array $configs = [
+    private array $configs = [
         'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file in
         'helpMessage' => 'help text will come' . PHP_EOL,
         'versionMessage' => 'Page Loader version 0.2b' . PHP_EOL
     ];
+    private Logger $logger;
     private array $args;
     private string $webPageHTML;
     private bool $isSetCanonical = false;
@@ -29,6 +34,8 @@ class Handler
 
     public function handleOptions(): bool
     {
+
+        //handle option
         $optionsBasic = [
             '-h' => $this->configs['helpMessage'],
             '--help' => $this->configs['helpMessage'],
@@ -80,6 +87,11 @@ class Handler
 
     public function downloadPage(string $url, string $directory, Client $client): void
     {
+        $stream = new StreamHandler($directory . '/main.log', Level::Debug);
+        $this->logger = new Logger('page-loader');
+        $this->logger->pushHandler($stream);
+        $this->logger->pushProcessor(new PsrLogMessageProcessor());
+
         $this->webPageHTML = $client->get($url)->getBody()->getContents();
 
         $filesDirectory = $directory . '/' . str_replace('.html', '', $this->fileName) . '_files'; //example: /home/project/google-com_files
@@ -93,6 +105,7 @@ class Handler
             $filePath = $filesDirectory . '/' . $this->fileName;
             file_put_contents($filePath, $this->webPageHTML);
         }
+        $this->logger->notice('Webpage was successfully downloaded');
         echo "Page was successfully downloaded into " . $filePath . PHP_EOL;
     }
 
@@ -104,6 +117,7 @@ class Handler
         if ($images != []) {
             if (!file_exists($filesDirectory)) {
                 mkdir($filesDirectory);
+                $this->logger->info('New directory was created: {dir}', ['dir' => $filesDirectory]);
             }
         }
         foreach ($images as $element) {
@@ -126,11 +140,15 @@ class Handler
             try {
                 $response = $client->request('GET', $urlToDownloadFile);
                 file_put_contents($newFilePath, $response);
+                $this->logger->info('Additional file {file} was successfully downloaded', ['file' => $newFilePath]);
             } catch (\Exception $e) {
                 echo $e->getMessage() . PHP_EOL;
+                $this->logger->warning('Fail to download additional file {URL};' . PHP_EOL . 'msg', ['URL' => $urlToDownloadFile,
+            'msg' => $e->getMessage()]);
             }
             
             $this->webPageHTML = $doc->html();
+            $this->logger->info('<img> tags in the requested webpage were modified');
         } 
 
     }
@@ -144,6 +162,7 @@ class Handler
         if ($links != [] or $scripts != []) {
             if (!file_exists($filesDirectory)) {
                 mkdir($filesDirectory);
+                $this->logger->info('New directory was created: {dir}', ['dir' => $filesDirectory]);
             }
         }
         foreach ($links as $element) {
@@ -171,8 +190,11 @@ class Handler
             try {
                 $response = $client->request('GET', $urlToDownloadFile);
                 file_put_contents($newFilePath, $response);
+                $this->logger->info('Additional file {file} was successfully downloaded', ['file' => $newFilePath]);
             } catch (\Exception $e) {
                 echo $e->getMessage() . PHP_EOL;
+                $this->logger->warning('Fail to download additional file {URL};' . PHP_EOL . 'msg', ['URL' => $urlToDownloadFile,
+                'msg' => $e->getMessage()]);
             }
         }
 
@@ -196,12 +218,16 @@ class Handler
             try {
                 $response = $client->request('GET', $urlToDownloadFile);
                 file_put_contents($newFilePath, $response);
+                $this->logger->info('Additional file {file} was successfully downloaded', ['file' => $newFilePath]);
             } catch (\Exception $e) {
                 echo $e->getMessage() . PHP_EOL;
+                $this->logger->warning('Fail to download additional file {URL};' . PHP_EOL . 'msg', ['URL' => $urlToDownloadFile,
+                'msg' => $e->getMessage()]);
             }
         }
         
-        $this->webPageHTML = $doc->html(); 
+        $this->webPageHTML = $doc->html();
+        $this->logger->info('<link> and <script> tags in the requested webpage were modified');
     }
 
     public function getFileName(): string
