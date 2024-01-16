@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+namespace Downloader\Downloader;
+
 use Downloader\Downloader\Handler;
 use GuzzleHttp\Client;
 
