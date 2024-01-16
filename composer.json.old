@@ -1,0 +1,27 @@
+{
+    "name": "hexlet/code",
+    "description": "page loader project on a hexlet PHPUnit course",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Hexlet\\Code\\": "src/",
+            "Hexlet\\Code\\Tests\\": "tests/"
+        }
+    },
+    "bin": ["bin/page-loader.php"],
+    "authors": [
+        {
+            "name": "Petr Dobrokhotov",
+            "email": "dobrokhotovp@gmail.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^10.4"
+    },
+    "require": {
+        "guzzlehttp/guzzle": "^7.8",
+        "mikey179/vfsstream": "^1.6",
+        "imangazaliev/didom": "^2.0",
+        "monolog/monolog": "^3.5"
+    }
+}

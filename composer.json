@@ -1,27 +1,38 @@
 {
     "name": "hexlet/code",
-    "description": "page loader project on a hexlet PHPUnit course",
+    "description": "Downloader for web-pages",
     "type": "project",
+    "minimum-stability": "stable",
+    "require": {
+        "guzzlehttp/guzzle": "^7.0",
+        "ext-json": "*",
+        "mikey179/vfsstream": "^1.6",
+        "symfony/console": "^6.3",
+        "imangazaliev/didom": "^2.0",
+        "monolog/monolog": "^3.4"
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpstan/phpstan": "^1.10",
+        "phpunit/phpunit": "^8.0",
+        "phpstan/phpstan-strict-rules": "^1.5",
+        "hexlet/phpstan-fp": "^2.0"
+    },
+    "license": "mit",
     "autoload": {
         "psr-4": {
             "Hexlet\\Code\\": "src/",
             "Hexlet\\Code\\Tests\\": "tests/"
-        }
+        },
+        "files": [
+            "extra/function.php"
+        ]
     },
-    "bin": ["bin/page-loader.php"],
+    "bin": ["bin/page-loader"],
     "authors": [
         {
-            "name": "Petr Dobrokhotov",
-            "email": "dobrokhotovp@gmail.com"
+            "name": "Igor Telmenko",
+            "email": "igor-telmenko@yandex.ru"
         }
-    ],
-    "require-dev": {
-        "phpunit/phpunit": "^10.4"
-    },
-    "require": {
-        "guzzlehttp/guzzle": "^7.8",
-        "mikey179/vfsstream": "^1.6",
-        "imangazaliev/didom": "^2.0",
-        "monolog/monolog": "^3.5"
-    }
+    ]
 }
