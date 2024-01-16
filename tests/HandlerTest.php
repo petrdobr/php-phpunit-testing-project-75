@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-namespace Downloader\Downloader\Tests;
-
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
