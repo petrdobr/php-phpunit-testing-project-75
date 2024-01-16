@@ -1,13 +1,13 @@
 #!/usr/bin/env php
 <?php
 
-namespace App\Tests;
+namespace Downloader\Downloader\Tests;
 
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
-use App\Handler;
+use Downloader\Downloader\Handler;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamPrintVisitor;
 

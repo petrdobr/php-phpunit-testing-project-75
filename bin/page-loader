@@ -2,22 +2,30 @@
 <?php
 
 namespace Downloader\Downloader;
-use App\Handler;
+
+use Downloader\Downloader\Handler;
 use GuzzleHttp\Client;
 
 require realpath(__DIR__ . '/../vendor/autoload.php');
 
-//Make an object to handle the command. Pass in the options. Handle options
-downloadPage($argv);
-function downloadPage($argv)
+$url = $argv[1];
+$directory = '/home/petr/tmp';
+$client = new Client();
+$handler = new Handler();
+$handler->setArgs($argv);
+if ($handler->handleOptions()) {
+    //make new client, download page
+    $url = $handler->getUrl();
+    $directory = $handler->getDirectory();
+    downloadPage($url, $directory, $client);
+}
+
+function downloadPage(string $url, string $directory, Client $client)
 {
     $handler = new Handler();
-    $handler->setArgs($argv);
-    if ($handler->handleOptions()) {
-        //make new client, download page
-        $client = new Client();
-        $url = $handler->getUrl();
-        $directory = $handler->getDirectory();
-        $handler->downloadPage($url, $directory, $client);
-    }
+    $args = ['page-loader', $url, '-o', $directory];
+    $handler->setArgs($args);
+    $url = $handler->getUrl();
+    $directory = $handler->getDirectory();
+    $handler->downloadPage($url, $directory, $client);
 }

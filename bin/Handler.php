@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace Downloader\Downloader;
 
 use GuzzleHttp\Client;
 use DiDom\Document;
@@ -11,7 +11,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 class Handler
 {
     private array $configs = [
-        'defaultPath' => '/home/galiia/hex/php-unit-project', // default path to download file in
+        'defaultPath' => '/home/petr/tmp', // default path to download file in
         'helpMessage' => 'help text will come' . PHP_EOL,
         'versionMessage' => 'Page Loader version 0.2b' . PHP_EOL
     ];
