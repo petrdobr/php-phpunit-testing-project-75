@@ -1,5 +1,6 @@
 <?php
-namespace Downloader\Downloader;
+
+namespace Hexlet\Code;
 
 use GuzzleHttp\Client;
 use DiDom\Document;

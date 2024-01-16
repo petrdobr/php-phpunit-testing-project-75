@@ -3,7 +3,7 @@
 
 namespace Downloader\Downloader;
 
-use Downloader\Downloader\Handler;
+use Hexlet\Code\Handler;
 use GuzzleHttp\Client;
 
 require realpath(__DIR__ . '/../vendor/autoload.php');

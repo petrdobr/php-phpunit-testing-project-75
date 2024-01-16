@@ -1,11 +1,13 @@
 #!/usr/bin/env php
 <?php
 
+namespace Hexlet\Code\Tests;
+
 use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use PHPUnit\Framework\TestCase;
-use Downloader\Downloader\Handler;
+use Hexlet\Code\Handler;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\visitor\vfsStreamPrintVisitor;
 
@@ -38,6 +40,7 @@ class HandlerTest extends TestCase
         $this->mockResponse->method('getBody')->willReturn($this->streamObject);
         $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
         $this->client->method('request')->willReturn($this->mockResponse);
+        Downloader\Downloader\downloadPage();
     }
 
     public function testHelpOutput(): void
