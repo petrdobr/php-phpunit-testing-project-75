@@ -40,7 +40,6 @@ class HandlerTest extends TestCase
         $this->mockResponse->method('getBody')->willReturn($this->streamObject);
         $this->streamObject->method('getContents')->willReturn($this->stubInitialData);
         $this->client->method('request')->willReturn($this->mockResponse);
-        Downloader\Downloader\downloadPage();
     }
 
     public function testHelpOutput(): void

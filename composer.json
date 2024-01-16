@@ -8,6 +8,7 @@
             "Hexlet\\Code\\Tests\\": "tests/"
         }
     },
+    "bin": ["bin/page-loader.php"],
     "authors": [
         {
             "name": "Petr Dobrokhotov",
