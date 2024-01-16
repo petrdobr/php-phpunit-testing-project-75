@@ -1,8 +1,6 @@
 #!/usr/bin/env php
 <?php
 
-namespace Downloader\Downloader;
-
 use Downloader\Downloader\Handler;
 use GuzzleHttp\Client;
 
@@ -26,6 +24,5 @@ function downloadPage(string $url, string $directory, Client $client)
     $args = ['page-loader', $url, '-o', $directory];
     $handler->setArgs($args);
     $url = $handler->getUrl();
-    $directory = $handler->getDirectory();
     $handler->downloadPage($url, $directory, $client);
 }

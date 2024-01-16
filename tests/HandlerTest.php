@@ -29,7 +29,7 @@ class HandlerTest extends TestCase
         $this->mockResponse = $this->createMock(ResponseInterface::class);
         $this->streamObject = $this->createMock(StreamInterface::class);
         $this->handler = new Handler();
-        $this->root = vfsStream::setup('/home/galiia/hex/php-unit-project');
+        $this->root = vfsStream::setup('/home/petr/tmp');
 
         //create stubs with fake data
         $this->stubInitialData = file_get_contents(realpath(__DIR__ . '/fixtures/testFile.html'));
@@ -70,14 +70,14 @@ class HandlerTest extends TestCase
         $args2 = ['page-loader.php', 'http://hexlet.io/page/com'];
         $this->handler->setArgs($args2);
         $this->handler->handleOptions();
-        $expectedDirectory = '/home/galiia/hex/php-unit-project/hexlet-io-page-com.html';
+        $expectedDirectory = '/home/petr/tmp/hexlet-io-page-com.html';
         $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
 
         //test passed in directory
-        $args3 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/tmp'];
+        $args3 = ['page-loader.php', 'http://hexlet.io/page/com', '-o', '/new'];
         $this->handler->setArgs($args3);
         $this->handler->handleOptions();
-        $expectedDirectory = '/home/galiia/hex/php-unit-project/tmp/hexlet-io-page-com.html';
+        $expectedDirectory = '/home/petr/tmp/new/hexlet-io-page-com.html';
         $this->assertEquals($expectedDirectory, $this->handler->getfilePath());
     }
 
@@ -92,7 +92,7 @@ class HandlerTest extends TestCase
         $url1 = $this->handler->getUrl();
 
         //download page to the fake virtual disk
-        $directory1 = vfsStream::url('home/galiia/hex/php-unit-project'); 
+        $directory1 = vfsStream::url('home/petr/tmp'); 
         $this->handler->downloadPage($url1, $directory1, $this->client);
 
         $fullFilePath1 = $directory1 . '/' . $this->handler->getFileName();
@@ -114,10 +114,10 @@ class HandlerTest extends TestCase
         }
 
         //new args with a new directory passed in and new options
-        $args5 = ['page-loader.php', 'http://ru.hexlet.io/courses', '-o', '/tmp'];
+        $args5 = ['page-loader.php', 'http://ru.hexlet.io/courses', '-o', '/new'];
         $this->handler->setArgs($args5);
         $this->handler->handleOptions();
-        $directory2 = vfsStream::url('home/galiia/hex/php-unit-project' . '/tmp');
+        $directory2 = vfsStream::url('home/petr/tmp' . '/new');
         mkdir($directory2);
         $url2 = $this->handler->getUrl();
 
