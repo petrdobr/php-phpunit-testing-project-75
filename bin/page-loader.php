@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 
 namespace Downloader\Downloader;
@@ -6,7 +5,7 @@ namespace Downloader\Downloader;
 use Hexlet\Code\Handler;
 use GuzzleHttp\Client;
 
-require realpath(__DIR__ . '/../vendor/autoload.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $url = $argv[1];
 $directory = '/home/petr/tmp';
